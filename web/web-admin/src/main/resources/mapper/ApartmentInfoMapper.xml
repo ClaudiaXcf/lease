@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.greatxcf.lease.web.admin.mapper.ApartmentInfoMapper">
+
+    <select id="itemPage" resultType="com.greatxcf.lease.web.admin.vo.apartment.ApartmentItemVo">
+        select ai.*,
+        ifnull(ri.room_total, 0) total_room_count,
+        ifnull(ri.room_total, 0) - ifnull(lg.rented_room, 0) free_room_count
+        from (select id,
+        name,
+        introduction,
+        district_id,
+        district_name,
+        city_id,
+        city_name,
+        province_id,
+        province_name,
+        address_detail,
+        latitude,
+        longitude,
+        phone,
+        is_release
+        from lease.apartment_info
+        <where>
+            is_deleted = 0
+            <if test="queryVo.provinceId != null">
+                and province_id = #{queryVo.provinceId}
+            </if>
+            <if test="queryVo.cityId != null">
+                and city_id = #{queryVo.cityId}
+            </if>
+            <if test="queryVo.districtId != null">
+                and district_id = #{queryVo.districtId}
+            </if>
+        </where>
+        ) ai
+        left join
+        (select apartment_id, count(*) room_total
+        from lease.room_info
+        where is_deleted = 0
+        and is_release = 1
+        group by apartment_id) ri
+        on ai.id = ri.apartment_id
+        left join
+        (select apartment_id,
+        count(*) rented_room
+        from lease.lease_agreement
+        where is_deleted = 0
+        and status in (1, 5)
+        group by apartment_id) lg
+        on ai.id = lg.apartment_id
+    </select>
+</mapper>
