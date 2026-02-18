@@ -1,8 +1,12 @@
 package com.greatxcf.lease.web.admin.service;
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.greatxcf.lease.model.entity.SystemUser;
+import com.greatxcf.lease.web.admin.vo.system.user.SystemUserItemVo;
+import com.greatxcf.lease.web.admin.vo.system.user.SystemUserQueryVo;
 
 /**
 * @author liubo
@@ -10,5 +14,9 @@ import com.greatxcf.lease.model.entity.SystemUser;
 * @createDate 2023-07-24 15:48:00
 */
 public interface SystemUserService extends IService<SystemUser> {
+
+    IPage<SystemUserItemVo> pageItem(Page<SystemUserItemVo> page, SystemUserQueryVo queryVo);
+
+    SystemUserItemVo getByUserId(Long id);
 
 }

@@ -238,8 +238,6 @@ public class ApartmentInfoServiceImpl extends ServiceImpl<ApartmentInfoMapper, A
         graphQueryWrapper.eq(GraphInfo::getItemId, id);
         graphInfoService.remove(graphQueryWrapper);
     }
-
-
 }
 
 

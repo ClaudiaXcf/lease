@@ -1,6 +1,5 @@
 package com.greatxcf.lease.model.entity;
 
-
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.greatxcf.lease.model.enums.BaseStatus;
@@ -13,7 +12,6 @@ import lombok.Data;
 @Data
 public class SystemUser extends BaseEntity {
 
-
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "用户名")
@@ -21,7 +19,7 @@ public class SystemUser extends BaseEntity {
     private String username;
 
     @Schema(description = "密码")
-    @TableField(value = "password")
+    @TableField(value = "password", select = false)
     private String password;
 
     @Schema(description = "姓名")
@@ -51,6 +49,5 @@ public class SystemUser extends BaseEntity {
     @Schema(description = "账号状态")
     @TableField(value = "status")
     private BaseStatus status;
-
 
 }

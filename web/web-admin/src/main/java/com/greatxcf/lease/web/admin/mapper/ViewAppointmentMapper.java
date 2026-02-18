@@ -2,7 +2,11 @@ package com.greatxcf.lease.web.admin.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.greatxcf.lease.model.entity.ViewAppointment;
+import com.greatxcf.lease.web.admin.vo.appointment.AppointmentQueryVo;
+import com.greatxcf.lease.web.admin.vo.appointment.AppointmentVo;
 
 /**
 * @author liubo
@@ -12,6 +16,7 @@ import com.greatxcf.lease.model.entity.ViewAppointment;
 */
 public interface ViewAppointmentMapper extends BaseMapper<ViewAppointment> {
 
+    IPage<AppointmentVo> pageAppointmentVo(Page<AppointmentVo> page, AppointmentQueryVo queryVo);
 }
 
 

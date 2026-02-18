@@ -65,6 +65,15 @@ public class Knife4jConfiguration {
                         "/admin/agreement/**"
                 ).build();
     }
+
+    /** 预约看房管理单独分组，方便在 doc.html 分组下拉中直接找到 */
+    @Bean
+    public GroupedOpenApi appointmentAPI() {
+        return GroupedOpenApi.builder().group("预约看房管理").
+                pathsToMatch("/admin/appointment/**").
+                build();
+    }
+    
     @Bean
     public GroupedOpenApi userAPI() {
         return GroupedOpenApi.builder().group("平台用户管理").

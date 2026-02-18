@@ -30,6 +30,8 @@ public enum ResultCodeEnum {
     ADMIN_ACCESS_FORBIDDEN(309, "无访问权限"),
 
     ADMIN_APARTMENT_DELETE_ERROR(310, "请先删除房间"),
+    ADMIN_ROOM_NOT_FOUND(311, "房间信息不存在"),
+    ADMIN_POST_NOT_FOUND(312, "岗位信息不存在"),
 
     APP_LOGIN_AUTH(501, "未登陆"),
     APP_LOGIN_PHONE_EMPTY(502, "手机号码为空"),

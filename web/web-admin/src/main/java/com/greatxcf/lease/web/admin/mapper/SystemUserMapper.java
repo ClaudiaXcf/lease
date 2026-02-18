@@ -2,7 +2,11 @@ package com.greatxcf.lease.web.admin.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.greatxcf.lease.model.entity.SystemUser;
+import com.greatxcf.lease.web.admin.vo.system.user.SystemUserItemVo;
+import com.greatxcf.lease.web.admin.vo.system.user.SystemUserQueryVo;
 
 /**
 * @author liubo
@@ -12,6 +16,9 @@ import com.greatxcf.lease.model.entity.SystemUser;
 */
 public interface SystemUserMapper extends BaseMapper<SystemUser> {
 
+    IPage<SystemUserItemVo> pageItem(Page<SystemUserItemVo> page, SystemUserQueryVo queryVo);
+
+    SystemUserItemVo getByUserId(Long id);
 }
 
 

@@ -1,25 +1,52 @@
 package com.greatxcf.lease.web.admin.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.greatxcf.lease.model.entity.*;
+import com.greatxcf.lease.common.exception.LeaseException;
+import com.greatxcf.lease.common.result.ResultCodeEnum;
+import com.greatxcf.lease.model.entity.ApartmentInfo;
+import com.greatxcf.lease.model.entity.FacilityInfo;
+import com.greatxcf.lease.model.entity.GraphInfo;
+import com.greatxcf.lease.model.entity.LabelInfo;
+import com.greatxcf.lease.model.entity.LeaseTerm;
+import com.greatxcf.lease.model.entity.PaymentType;
+import com.greatxcf.lease.model.entity.RoomAttrValue;
+import com.greatxcf.lease.model.entity.RoomFacility;
+import com.greatxcf.lease.model.entity.RoomInfo;
+import com.greatxcf.lease.model.entity.RoomLabel;
+import com.greatxcf.lease.model.entity.RoomLeaseTerm;
+import com.greatxcf.lease.model.entity.RoomPaymentType;
 import com.greatxcf.lease.model.enums.ItemType;
-import com.greatxcf.lease.web.admin.mapper.*;
-import com.greatxcf.lease.web.admin.service.*;
+import com.greatxcf.lease.web.admin.mapper.ApartmentInfoMapper;
+import com.greatxcf.lease.web.admin.mapper.AttrValueMapper;
+import com.greatxcf.lease.web.admin.mapper.FacilityInfoMapper;
+import com.greatxcf.lease.web.admin.mapper.GraphInfoMapper;
+import com.greatxcf.lease.web.admin.mapper.LabelInfoMapper;
+import com.greatxcf.lease.web.admin.mapper.LeaseTermMapper;
+import com.greatxcf.lease.web.admin.mapper.PaymentTypeMapper;
+import com.greatxcf.lease.web.admin.mapper.RoomInfoMapper;
+import com.greatxcf.lease.web.admin.service.GraphInfoService;
+import com.greatxcf.lease.web.admin.service.RoomAttrValueService;
+import com.greatxcf.lease.web.admin.service.RoomFacilityService;
+import com.greatxcf.lease.web.admin.service.RoomInfoService;
+import com.greatxcf.lease.web.admin.service.RoomLabelService;
+import com.greatxcf.lease.web.admin.service.RoomLeaseTermService;
+import com.greatxcf.lease.web.admin.service.RoomPaymentTypeService;
 import com.greatxcf.lease.web.admin.vo.attr.AttrValueVo;
 import com.greatxcf.lease.web.admin.vo.graph.GraphVo;
 import com.greatxcf.lease.web.admin.vo.room.RoomDetailVo;
 import com.greatxcf.lease.web.admin.vo.room.RoomItemVo;
 import com.greatxcf.lease.web.admin.vo.room.RoomQueryVo;
 import com.greatxcf.lease.web.admin.vo.room.RoomSubmitVo;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author liubo
@@ -206,6 +233,10 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo>
         // 根据id查询房间详细信息
         RoomDetailVo roomDetailVo = new RoomDetailVo();
         RoomInfo roomInfo = roomInfoMapper.selectById(id);
+        if (roomInfo == null) {
+            throw new LeaseException(ResultCodeEnum.ADMIN_ROOM_NOT_FOUND);
+        }
+
         BeanUtils.copyProperties(roomInfo, roomDetailVo);
 
         // 1.根据roomId查询公寓信息
@@ -238,5 +269,49 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo>
         roomDetailVo.setPaymentTypeList(paymentTypes);
         roomDetailVo.setLeaseTermList(leaseTerms);
         return roomDetailVo;
+    }
+
+    @Override
+    public void removeRoomById(Long id) {
+
+        // 0.先校验房间是否存在
+        RoomInfo roomInfo = roomInfoMapper.selectById(id);
+        if (roomInfo == null) {
+            throw new LeaseException(ResultCodeEnum.ADMIN_ROOM_NOT_FOUND);
+        }
+
+        // 1.删除房间信息
+        super.removeById(id);
+
+        // 2.删除图片信息
+        LambdaQueryWrapper<GraphInfo> graphInfoQueryWrapper = new LambdaQueryWrapper<GraphInfo>();
+        graphInfoQueryWrapper.eq(GraphInfo::getItemId, id);
+        graphInfoQueryWrapper.eq(GraphInfo::getItemType, ItemType.ROOM);
+        graphInfoService.remove(graphInfoQueryWrapper);
+
+        // 3.删除属性信息
+        LambdaQueryWrapper<RoomAttrValue> attrValueQueryWrapper = new LambdaQueryWrapper<>();
+        attrValueQueryWrapper.eq(RoomAttrValue::getRoomId, id);
+        roomAttrValueService.remove(attrValueQueryWrapper);
+
+        // 4.删除配套信息
+        LambdaQueryWrapper<RoomFacility> facLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        facLambdaQueryWrapper.eq(RoomFacility::getRoomId,id);
+        roomFacilityService.remove(facLambdaQueryWrapper);
+
+        // 5.删除标签信息
+        LambdaQueryWrapper<RoomLabel> rooLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        rooLambdaQueryWrapper.eq(RoomLabel::getRoomId, id);
+        roomLabelService.remove(rooLambdaQueryWrapper);
+
+        // 6.删除支付信息
+        LambdaQueryWrapper<RoomPaymentType> roomPayMentTypeQueryWrapper = new LambdaQueryWrapper<RoomPaymentType>();
+        roomPayMentTypeQueryWrapper.eq(RoomPaymentType::getRoomId, id);
+        roomPaymentTypeService.remove(roomPayMentTypeQueryWrapper);
+
+        // 7.删除可选租期信息
+        LambdaQueryWrapper<RoomLeaseTerm> roomLeaseTermQueryWrapper = new LambdaQueryWrapper<>();
+        roomLeaseTermQueryWrapper.eq(RoomLeaseTerm::getRoomId, id);
+        roomLeaseTermService.remove(roomLeaseTermQueryWrapper);
     }
 }
